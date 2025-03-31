@@ -32,12 +32,15 @@ public:
 	 * 寄存器中.由于体系结构的关系，使用MapToPageTable()函数将MemoryDescriptor中的页表copy到操作系统正使用的
 	 * PageTable中，然后使用FlushPageDirectory()函数完成页表映射，新上台进程的用户区数据映射完成 */
 	void MapToPageTable();
+	void DisplayPageTable();
 
 	/* 
 	 * @comment 原unix v6中estabur()函数，用于建立用户态地址空间的相对地址映射表，然后调用
 	 * MapToPageTable()函数将相对地址映射表加载到用户态页表中。
 	 */
+	bool CheckUserSpaceSize( unsigned long textVirtualAddress, unsigned long textSize, unsigned long dataVirtualAddress, unsigned long dataSize, unsigned long stackSize );
 	bool EstablishUserPageTable(unsigned long textVirtualAddress, unsigned long textSize, unsigned long dataVirtualAddress, unsigned long dataSize, unsigned long stackSize);
+
 	void ClearUserPageTable();
 	PageTable* GetUserPageTableArray();
 	unsigned long GetTextStartAddress();

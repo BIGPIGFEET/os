@@ -337,7 +337,22 @@ void Process::SStack()
 		return;
 	}
 
+//	this->Expand(newSize);
+//	int dst = u.u_procp->p_addr + newSize;
+//	unsigned int count = md.m_StackSize - change;
+//	while(count--)
+//	{
+//		dst--;
+//		Utility::CopySeg(dst - change, dst);
+//	}
+//
+//	u.u_MemoryDescriptor.MapToPageTable();
+
+//更改如下，做到栈自动扩展时，已有进程图像不移动。
 	this->Expand(newSize);
+	u.u_MemoryDescriptor.EstablishUserPageTable(md.m_TextStartAddress, md.m_TextSize, md.m_DataStartAddress, md.m_DataSize, md.m_StackSize);
+	u.u_MemoryDescriptor.MapToPageTable();
+
 	int dst = u.u_procp->p_addr + newSize;
 	unsigned int count = md.m_StackSize - change;
 	while(count--)
@@ -345,8 +360,6 @@ void Process::SStack()
 		dst--;
 		Utility::CopySeg(dst - change, dst);
 	}
-
-	u.u_MemoryDescriptor.MapToPageTable();
 }
 
 
@@ -399,6 +412,12 @@ void Process::SBreak()
 			Utility::CopySeg(dst - change, dst);
 		}
 	}
+
+	//增加下面三行，做到堆扩展（malloc）时，已有进程图像不移动
+	u.u_MemoryDescriptor.EstablishUserPageTable(md.m_TextStartAddress, md.m_TextSize, md.m_DataStartAddress, md.m_DataSize, md.m_StackSize);    // 写页表
+	u.u_MemoryDescriptor.MapToPageTable();
+	u.u_MemoryDescriptor.DisplayPageTable();
+
 	u.u_ar0[User::EAX] = md.m_DataStartAddress + md.m_DataSize;
 }
 
